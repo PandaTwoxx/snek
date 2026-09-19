@@ -18,10 +18,12 @@ GREEN = (25, 170, 25)
 
 WINNER_FONT = pygame.font.SysFont('comicsans', 100)
 
+BACKGROUND_PIC = pygame.image.load(os.path.join('Assets', 'checkerboard (2).png'))
+
 FPS = 50
 SNAKE_WIDTH, SNAKE_HEIGHT = 25, 25
 
-APPLE_COUNT = 4
+APPLE_COUNT = 10
 class Snake(pygame.sprite.Sprite):
     """The snake class."""
     def __init__(self, color, x, y):
@@ -62,8 +64,37 @@ class Snake(pygame.sprite.Sprite):
 
     def draw(self, surface):
         """Draw the snake on the given surface."""
-        for segment in self.body:
-            pygame.draw.rect(surface, self.image.get_at((0, 0)), segment)
+        color = self.image.get_at((0, 0))
+        for segment in self.body[:-1]:
+            pygame.draw.rect(surface, color, segment)
+
+        head_rect = self.body[-1]
+        head_draw_rect = head_rect.inflate(-4, -4)
+        pygame.draw.rect(surface, color, head_draw_rect)
+
+        eye_color = BLACK
+        pupil_color = WHITE
+        eye_radius = 3
+
+        cx = head_rect.centerx
+        cy = head_rect.centery
+
+        if self.direction.x == 1:  # Right
+            eye1 = (cx + 4, cy - 5)
+            eye2 = (cx + 4, cy + 5)
+        elif self.direction.x == -1:  # Left
+            eye1 = (cx - 4, cy - 5)
+            eye2 = (cx - 4, cy + 5)
+        elif self.direction.y == -1:  # Up
+            eye1 = (cx - 5, cy - 4)
+            eye2 = (cx + 5, cy - 4)
+        else:  # Down
+            eye1 = (cx - 5, cy + 4)
+            eye2 = (cx + 5, cy + 4)
+
+        for eye_pos in (eye1, eye2):
+            pygame.draw.circle(surface, pupil_color, eye_pos, eye_radius)
+            pygame.draw.circle(surface, eye_color, eye_pos, eye_radius - 1)
 
 class Apple(pygame.sprite.Sprite):
     """The apple class."""
@@ -230,14 +261,19 @@ def main():
             break
 
         if not red.alive() and not yellow.alive():
-            winner_text = "Draw!"
+            if red.length > yellow.length:
+                winner_text = "Red Wins!"
+            elif yellow.length > red.length:
+                winner_text = "Yellow Wins!"
+            else:
+                winner_text = "Draw"
             draw_winner(winner_text)
             reset_game()
             break
 
 
         sprites.update(tick)
-        WIN.fill(GREEN)
+        WIN.blit(BACKGROUND_PIC, (0, 0))
         for sprite in sprites:
             if isinstance(sprite, Snake):
                 sprite.draw(WIN)
