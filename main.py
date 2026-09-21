@@ -1,6 +1,7 @@
 """Pygame"""
 import os
 import random
+import sys
 import pygame
 pygame.font.init()
 pygame.mixer.init()
@@ -16,9 +17,18 @@ YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
 GREEN = (25, 170, 25)
 
-WINNER_FONT = pygame.font.SysFont('comicsans', 100)
+def resource_path(relative_path):
+    """ Get path to png """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
 
-BACKGROUND_PIC = pygame.image.load(os.path.join('Assets', 'checkerboard (2).png'))
+    return os.path.join(base_path, relative_path)
+
+WINNER_FONT = pygame.font.SysFont('Arial', 100)
+
+BACKGROUND_PIC = pygame.image.load(resource_path("Assets/checkerboard (2).png"))
 
 FPS = 50
 SNAKE_WIDTH, SNAKE_HEIGHT = 25, 25
@@ -249,7 +259,7 @@ def main():
         handle_collision(red, yellow)
 
         if not red.alive() and yellow.alive() and yellow.length == BOARDSIZE-1:
-            winner_text = "Yellow Wins!"
+            winner_text = "Blue Wins!"
             draw_winner(winner_text)
             reset_game()
             break
@@ -264,7 +274,7 @@ def main():
             if red.length > yellow.length:
                 winner_text = "Red Wins!"
             elif yellow.length > red.length:
-                winner_text = "Yellow Wins!"
+                winner_text = "Blue Wins!"
             else:
                 winner_text = "Draw"
             draw_winner(winner_text)
